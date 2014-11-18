@@ -1,0 +1,11 @@
+<resources>
+
+    <string name="app_name">BluetoothRobotController</string>
+    <string name="title_activity_main">BluetoothRobotController</string>
+    <string name="btn_FORWARD">FORWARD</string>
+    <string name="btn_BACKWARD">BACKWARD</string>
+    <string name="btn_LEFT">LEFT</string>
+    <string name="btn_RIGHT">RIGHT</string>
+    <string name="btn_STOP">STOP!!</string>
+
+</resources>

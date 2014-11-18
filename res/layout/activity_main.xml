@@ -1,0 +1,46 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <Button
+        android:id="@+id/btnForward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="@string/btn_FORWARD" />
+
+    <Button
+        android:id="@+id/btnBackward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnForward"
+        android:layout_centerHorizontal="true"
+        android:text="@string/btn_BACKWARD" />
+
+    <Button
+            android:id="@+id/btnLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/btnBackward"
+            android:layout_centerHorizontal="true"
+            android:text="@string/btn_LEFT" />
+
+    <Button
+            android:id="@+id/btnRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/btnLeft"
+            android:layout_centerHorizontal="true"
+            android:text="@string/btn_RIGHT" />
+
+    <Button
+            android:id="@+id/btnStop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/btnRight"
+            android:layout_centerHorizontal="true"
+            android:text="@string/btn_STOP" />
+
+</RelativeLayout>

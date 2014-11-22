@@ -42,5 +42,28 @@
             android:layout_above="@+id/btnRight"
             android:layout_centerHorizontal="true"
             android:text="@string/btn_STOP" />
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_DISCONNECT"
+            android:id="@+id/btnDisconnect" android:layout_alignParentBottom="true" android:layout_alignParentLeft="true"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_RECONNECT"
+            android:id="@+id/btnReconnect" android:layout_alignParentBottom="true" android:layout_alignParentRight="true"/>
+    <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sekSpeed"
+            android:layout_below="@+id/txtSpeed" android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/txt_SPEED"
+            android:id="@+id/txtSpeed" android:layout_below="@+id/btnForward" android:layout_centerHorizontal="true"
+            android:layout_marginTop="35dp"/>
 
 </RelativeLayout>

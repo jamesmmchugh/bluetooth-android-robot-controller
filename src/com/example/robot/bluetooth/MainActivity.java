@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.SeekBar;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,6 +23,9 @@ public class MainActivity extends Activity {
     private Button btnLeft;
     private Button btnRight;
     private Button btnStop;
+    private Button btnDisconnect;
+    private Button btnReconnect;
+    private SeekBar sekSpeed;
 
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
@@ -47,6 +51,9 @@ public class MainActivity extends Activity {
         btnLeft = (Button) findViewById(R.id.btnLeft);
         btnRight = (Button) findViewById(R.id.btnRight);
         btnStop = (Button) findViewById(R.id.btnStop);
+        btnDisconnect = (Button) findViewById(R.id.btnDisconnect);
+        btnReconnect = (Button) findViewById(R.id.btnReconnect);
+        sekSpeed = (SeekBar) findViewById(R.id.sekSpeed);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         try {
@@ -84,6 +91,37 @@ public class MainActivity extends Activity {
         btnStop.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 sendData("s");
+            }
+        });
+
+        btnDisconnect.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        btnReconnect.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        sekSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
     }

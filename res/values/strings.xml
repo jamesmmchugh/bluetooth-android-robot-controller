@@ -7,5 +7,8 @@
     <string name="btn_LEFT">LEFT</string>
     <string name="btn_RIGHT">RIGHT</string>
     <string name="btn_STOP">STOP!!</string>
+    <string name="btn_DISCONNECT">DISCONNECT</string>
+    <string name="btn_RECONNECT">RECONNECT</string>
+    <string name="txt_SPEED">SPEED</string>
 
 </resources>

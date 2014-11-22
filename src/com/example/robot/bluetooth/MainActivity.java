@@ -17,6 +17,7 @@ import java.util.UUID;
 
 public class MainActivity extends Activity {
     private static final String TAG = "bluetooth1";
+    private static final int MAX_SPEED = 255;
 
     private Button btnForward;
     private Button btnBackward;
@@ -28,8 +29,7 @@ public class MainActivity extends Activity {
     private SeekBar sekSpeed;
 
     private BluetoothAdapter btAdapter = null;
-    private BluetoothSocket btSocket = null;
-    private OutputStream outStream = null;
+    private BaseController baseController;
 
     // SPP UUID service
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -54,57 +54,59 @@ public class MainActivity extends Activity {
         btnDisconnect = (Button) findViewById(R.id.btnDisconnect);
         btnReconnect = (Button) findViewById(R.id.btnReconnect);
         sekSpeed = (SeekBar) findViewById(R.id.sekSpeed);
+        sekSpeed.setMax(MAX_SPEED);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();
+        BluetoothSocket bluetoothSocket = null;
         try {
-            btSocket = createBluetoothSocket(btAdapter.getRemoteDevice(address));
-            btSocket.connect();
-            outStream = btSocket.getOutputStream();
+            bluetoothSocket = createBluetoothSocket(btAdapter.getRemoteDevice(address));
         } catch (IOException e) {
             Log.e("ERROR_TAG", "ERROR_STR", e);
         }
+        baseController = new BaseController(bluetoothSocket);
 
         btnForward.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                sendData("f");
+                baseController.setLeftAndRightPower((byte)126, (byte)126);
             }
         });
 
         btnBackward.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                sendData("b");
+                baseController.setLeftAndRightPower((byte)-126, (byte)-126);
             }
         });
 
         btnLeft.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                sendData("l");
+                baseController.setLeftAndRightPower((byte)-126, (byte)126);
             }
         });
 
         btnRight.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                sendData("r");
+                baseController.setLeftAndRightPower((byte)126, (byte)-126);
             }
         });
 
         btnStop.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                sendData("s");
+                baseController.stop();
             }
         });
 
         btnDisconnect.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                baseController.disconnect();
             }
         });
 
         btnReconnect.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                baseController.disconnect();
+                baseController.connect();
             }
         });
 
@@ -128,20 +130,6 @@ public class MainActivity extends Activity {
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
         return device.createRfcommSocketToServiceRecord(MY_UUID);
-    }
-
-
-    private void sendData(String message) {
-        byte[] msgBuffer = message.getBytes();
-
-        Log.d(TAG, "...Send data: " + message + "...");
-
-        try {
-            outStream.write(msgBuffer);
-            outStream.flush();
-        } catch (IOException e) {
-            Log.e("ERROR_TAG", "ERROR_STR", e);
-        }
     }
 }
 

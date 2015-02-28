@@ -39,6 +39,10 @@ public class BaseController {
         connect();
     }
 
+    public InputStream getInputStream(){
+        return this.inputStream;
+    }
+
     public void connect() {
         try {
             if(!bluetoothSocket.isConnected()) {

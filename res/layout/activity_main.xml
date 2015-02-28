@@ -1,69 +1,65 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/btnForward"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/btn_FORWARD" />
-
-    <Button
-        android:id="@+id/btnBackward"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/btnForward"
-        android:layout_centerHorizontal="true"
-        android:text="@string/btn_BACKWARD" />
-
-    <Button
-            android:id="@+id/btnLeft"
+    <SeekBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/btnBackward"
-            android:layout_centerHorizontal="true"
-            android:text="@string/btn_LEFT" />
+            android:id="@+id/sekSpeed"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="56dp" android:layout_alignParentRight="true"/>
 
-    <Button
-            android:id="@+id/btnRight"
+    <TextView
+            android:id="@+id/txtSpeed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/btnLeft"
-            android:layout_centerHorizontal="true"
-            android:text="@string/btn_RIGHT" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/txt_SPEED"
+            android:layout_below="@+id/sekSpeed"
+            android:layout_centerHorizontal="true"/>
+
+    <SeekBar
+            android:id="@+id/sekDirection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"/>
+
+    <TextView
+            android:id="@+id/txtDirection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/txt_DIRECTION"
+            android:layout_below="@+id/sekDirection"
+            android:layout_centerHorizontal="true"/>
+
 
     <Button
             android:id="@+id/btnStop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/btnRight"
-            android:layout_centerHorizontal="true"
-            android:text="@string/btn_STOP" />
+            android:text="@string/btn_STOP"
+            android:layout_above="@+id/btnDisconnect" android:layout_centerHorizontal="true"
+            android:layout_marginBottom="77dp"/>
+
+
     <Button
+            android:id="@+id/btnDisconnect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_DISCONNECT"
-            android:id="@+id/btnDisconnect" android:layout_alignParentBottom="true" android:layout_alignParentLeft="true"/>
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"/>
     <Button
+            android:id="@+id/btnReconnect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_RECONNECT"
-            android:id="@+id/btnReconnect" android:layout_alignParentBottom="true" android:layout_alignParentRight="true"/>
-    <SeekBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/sekSpeed"
-            android:layout_below="@+id/txtSpeed" android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"/>
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/txt_SPEED"
-            android:id="@+id/txtSpeed" android:layout_below="@+id/btnForward" android:layout_centerHorizontal="true"
-            android:layout_marginTop="35dp"/>
+
 
 </RelativeLayout>

@@ -86,7 +86,7 @@ void turn_left(byte power){
     analogWrite(motor_left[FORWARD], power); 
   }
   else{
-    power = 2 * (255 - power);
+    power = 2 * (127 - power);
     analogWrite(motor_left[FORWARD], STOP); 
     analogWrite(motor_left[BACK], power); 
   }
@@ -99,7 +99,7 @@ void turn_right(byte power){
     analogWrite(motor_right[FORWARD], power); 
   }
   else{
-    power = 2 * (255 - power);
+    power = 2 * (127 - power);
     analogWrite(motor_right[FORWARD], STOP); 
     analogWrite(motor_right[BACK], power); 
   }

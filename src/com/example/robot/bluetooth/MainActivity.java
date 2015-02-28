@@ -17,16 +17,17 @@ import java.util.UUID;
 
 public class MainActivity extends Activity {
     private static final String TAG = "bluetooth1";
-    private static final int MAX_SPEED = 255;
+    private static final int MAX_SPEED = 127;
+    public static final int MAX_SPEED_SLIDER = 200;
+    public static final int CENTRE_SPEED_SLIDER = 100;
+    public static final int MAX_DIRECTION_SLIDER = 100;
+    public static final int CENTRE_DIRECTION_SLIDER = 50;
 
-    private Button btnForward;
-    private Button btnBackward;
-    private Button btnLeft;
-    private Button btnRight;
     private Button btnStop;
     private Button btnDisconnect;
     private Button btnReconnect;
     private SeekBar sekSpeed;
+    private SeekBar sekDirection;
 
     private BluetoothAdapter btAdapter = null;
     private BaseController baseController;
@@ -35,7 +36,10 @@ public class MainActivity extends Activity {
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     // MAC-address of Bluetooth module (you must edit this line)
-    private static String address = "20:14:04:11:31:91";
+    private static String address = "20:14:08:06:06:93";
+
+    private int speed = 0;
+    private int direction = 0;
 
     /**
      * Called when the activity is first created.
@@ -46,15 +50,15 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
-        btnForward = (Button) findViewById(R.id.btnForward);
-        btnBackward = (Button) findViewById(R.id.btnBackward);
-        btnLeft = (Button) findViewById(R.id.btnLeft);
-        btnRight = (Button) findViewById(R.id.btnRight);
         btnStop = (Button) findViewById(R.id.btnStop);
         btnDisconnect = (Button) findViewById(R.id.btnDisconnect);
         btnReconnect = (Button) findViewById(R.id.btnReconnect);
         sekSpeed = (SeekBar) findViewById(R.id.sekSpeed);
-        sekSpeed.setMax(MAX_SPEED);
+        sekSpeed.setMax(MAX_SPEED_SLIDER);
+        sekSpeed.setProgress(CENTRE_SPEED_SLIDER);
+        sekDirection = (SeekBar) findViewById(R.id.sekDirection);
+        sekDirection.setMax(MAX_DIRECTION_SLIDER);
+        sekDirection.setProgress(CENTRE_DIRECTION_SLIDER);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         BluetoothSocket bluetoothSocket = null;
@@ -63,37 +67,8 @@ public class MainActivity extends Activity {
         } catch (IOException e) {
             Log.e("ERROR_TAG", "ERROR_STR", e);
         }
+
         baseController = new BaseController(bluetoothSocket);
-
-        btnForward.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                baseController.setLeftAndRightPower((byte)126, (byte)126);
-            }
-        });
-
-        btnBackward.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                baseController.setLeftAndRightPower((byte)-126, (byte)-126);
-            }
-        });
-
-        btnLeft.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                baseController.setLeftAndRightPower((byte)-126, (byte)126);
-            }
-        });
-
-        btnRight.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                baseController.setLeftAndRightPower((byte)126, (byte)-126);
-            }
-        });
-
-        btnStop.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                baseController.stop();
-            }
-        });
 
         btnDisconnect.setOnClickListener(new OnClickListener() {
             @Override
@@ -101,7 +76,6 @@ public class MainActivity extends Activity {
                 baseController.disconnect();
             }
         });
-
         btnReconnect.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,10 +84,19 @@ public class MainActivity extends Activity {
             }
         });
 
+        btnStop.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                sekSpeed.setProgress(CENTRE_SPEED_SLIDER);
+                speed = 0;
+                setSpeedAndDirection(speed, direction);
+            }
+        });
+
         sekSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+                speed = (int)((progress - CENTRE_SPEED_SLIDER) / 100d * MAX_SPEED);
+                setSpeedAndDirection(speed, direction);
             }
 
             @Override
@@ -126,6 +109,34 @@ public class MainActivity extends Activity {
 
             }
         });
+
+
+
+        sekDirection.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                direction = progress;
+                setSpeedAndDirection(speed, direction);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+
+    }
+
+    private void setSpeedAndDirection(int speed, int direction) {
+        int leftPower = (int)(speed * (direction / 100d));
+        int rightPower = (int)(speed * ((MAX_DIRECTION_SLIDER-direction) / 100d));
+        baseController.setLeftAndRightPower((byte) (rightPower), (byte) (leftPower));
     }
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {

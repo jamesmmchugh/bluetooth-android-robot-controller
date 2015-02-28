@@ -30,6 +30,7 @@ public class AutomatedController extends Activity {
         rightPower = 50;
         updateBase();
         Thread bumperListener = new Thread(new BumperListener(base.getInputStream(), bumperQueue));
+        bumperListener.start();
         Integer bump;
         try {
             while ((bump = bumperQueue.take()) != null) {

@@ -2,6 +2,12 @@
 
     <string name="app_name">BluetoothRobotController</string>
     <string name="title_activity_main">BluetoothRobotController</string>
+
+	<!--MainActivity strings-->
+	<string name="btn_REMOTE">Remote Controller</string>
+	<string name="btn_AUTOMATED">Automatic Controller</string>
+
+	<!--RemoteController strings-->
     <string name="btn_FORWARD">FORWARD</string>
     <string name="btn_BACKWARD">BACKWARD</string>
     <string name="btn_LEFT">LEFT</string>
@@ -11,5 +17,7 @@
     <string name="btn_RECONNECT">RECONNECT</string>
     <string name="txt_SPEED">SPEED</string>
     <string name="txt_DIRECTION">DIRECTION</string>
+
+	<!--AutomatedController strings-->
 
 </resources>

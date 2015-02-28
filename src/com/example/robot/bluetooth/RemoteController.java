@@ -1,18 +1,11 @@
 package com.example.robot.bluetooth;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.SeekBar;
-
-import java.io.IOException;
-import java.util.UUID;
 
 import com.example.robot.bluetooth.bot.controller.BaseController;
 
@@ -30,14 +23,7 @@ public class RemoteController extends Activity {
 	private SeekBar sekSpeed;
 	private SeekBar sekDirection;
 
-	private BluetoothAdapter btAdapter = null;
 	private BaseController baseController;
-
-	// SPP UUID service
-	private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
-	// MAC-address of Bluetooth module (you must edit this line)
-	private static String address = "20:14:08:06:06:93";
 
 	private int speed = 0;
 	private int direction = 0;
@@ -57,15 +43,7 @@ public class RemoteController extends Activity {
 		sekDirection.setMax(MAX_DIRECTION_SLIDER);
 		sekDirection.setProgress(CENTRE_DIRECTION_SLIDER);
 
-		btAdapter = BluetoothAdapter.getDefaultAdapter();
-		BluetoothSocket bluetoothSocket = null;
-		try {
-			bluetoothSocket = createBluetoothSocket(btAdapter.getRemoteDevice(address));
-		} catch (IOException e) {
-			Log.e("ERROR_TAG", "ERROR_STR", e);
-		}
-
-		baseController = new BaseController(bluetoothSocket);
+		baseController = new BaseController();
 
 		btnDisconnect.setOnClickListener(new OnClickListener() {
 			@Override
@@ -131,9 +109,5 @@ public class RemoteController extends Activity {
 		int leftPower = (int) (speed * (direction / 100d));
 		int rightPower = (int) (speed * ((MAX_DIRECTION_SLIDER - direction) / 100d));
 		baseController.setLeftAndRightPower((byte) (rightPower), (byte) (leftPower));
-	}
-
-	private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
-		return device.createRfcommSocketToServiceRecord(MY_UUID);
 	}
 }

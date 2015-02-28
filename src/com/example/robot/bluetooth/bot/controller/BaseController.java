@@ -1,13 +1,20 @@
 package com.example.robot.bluetooth.bot.controller;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.UUID;
 
 public class BaseController {
+
+	// SPP UUID service
+	private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+	// MAC-address of Bluetooth module (you must edit this line)
+	private static String address = "20:14:08:06:06:93";
 
     private static final String ERROR_TAG = "ARC_ERROR";
     private static final String INFO_TAG = "ARC_INFO";
@@ -20,8 +27,13 @@ public class BaseController {
     public static final byte ZERO = 0;
     private static final byte ONE = 1;
 
-    public BaseController(final BluetoothSocket bluetoothSocket) {
-        this.bluetoothSocket = bluetoothSocket;
+    public BaseController() {
+		BluetoothAdapter defaultBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		try {
+			bluetoothSocket = defaultBluetoothAdapter.getRemoteDevice(address).createRfcommSocketToServiceRecord(MY_UUID);
+		} catch (IOException e) {
+			Log.e("ERROR_TAG", "ERROR_STR", e);
+		}
         this.leftPower = 0;
         this.rightPower = 0;
         connect();

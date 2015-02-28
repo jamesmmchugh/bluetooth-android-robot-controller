@@ -13,7 +13,6 @@ public class AutomatedController extends Activity {
     private final LinkedBlockingQueue<Integer> bumperQueue;
     private byte leftPower = 0;
     private byte rightPower = 0;
-    private Byte ZERO = new Byte((byte)0);
     public AutomatedController(){
         this.base = new BaseController();
         this.bumperQueue = new LinkedBlockingQueue<Integer>(2);
@@ -43,8 +42,8 @@ public class AutomatedController extends Activity {
 	}
 
     private void backup(Integer bump){
-        leftPower = (byte)(ZERO - leftPower);
-        rightPower = (byte)(ZERO - rightPower);
+        leftPower = (byte)(0 - leftPower);
+        rightPower = (byte)(0 - rightPower);
         switch(bump){
             case BumperListener.FRHIT:
                 rightPower = (byte)(rightPower - 20);

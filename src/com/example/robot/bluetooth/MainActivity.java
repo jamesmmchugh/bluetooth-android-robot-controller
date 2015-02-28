@@ -12,8 +12,9 @@ import android.widget.Button;
 import android.widget.SeekBar;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.UUID;
+
+import com.example.robot.bluetooth.bot.controller.BaseController;
 
 public class MainActivity extends Activity {
     private static final String TAG = "bluetooth1";

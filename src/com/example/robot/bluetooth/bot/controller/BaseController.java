@@ -1,4 +1,4 @@
-package com.example.robot.bluetooth;
+package com.example.robot.bluetooth.bot.controller;
 
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;

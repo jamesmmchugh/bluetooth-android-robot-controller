@@ -2,6 +2,7 @@ package com.example.robot.bluetooth;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -11,7 +12,6 @@ import com.example.robot.bluetooth.bot.controller.BaseController;
 
 public class RemoteController extends Activity {
 
-	private static final int MAX_SPEED = 127;
 	public static final int MAX_SPEED_SLIDER = 200;
 	public static final int CENTRE_SPEED_SLIDER = 100;
 	public static final int MAX_DIRECTION_SLIDER = 100;
@@ -70,7 +70,7 @@ public class RemoteController extends Activity {
 		sekSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				speed = (int) ((progress - CENTRE_SPEED_SLIDER) / 100d * MAX_SPEED);
+				speed = progress - CENTRE_SPEED_SLIDER;
 				setSpeedAndDirection(speed, direction);
 			}
 
@@ -105,9 +105,47 @@ public class RemoteController extends Activity {
 
 	}
 
+	private static final String INFO_TAG = "ARC_INFO";
+
 	private void setSpeedAndDirection(int speed, int direction) {
-		int leftPower = (int) (speed * (direction / 100d));
-		int rightPower = (int) (speed * ((MAX_DIRECTION_SLIDER - direction) / 100d));
-		baseController.setLeftAndRightPower((byte) (rightPower), (byte) (leftPower));
+		//speed is -100 to 100, 0 = stop
+		//direction is 0 to 100, 50 = both
+		byte forward = 1;
+		byte backward = 0;
+		byte dir = speed < 0 ? forward : backward;
+		int leftPower;
+		int rightPower;
+		if(direction == 50) { // full forward
+			leftPower = (int) (127 * (Math.abs(speed) / 100d));
+			rightPower = (int) (127 * (Math.abs(speed) / 100d));
+		} else if(direction > 50) { //turning right
+			leftPower = (int) (127 * (Math.abs(speed)/100d) * (direction / 50d));
+			rightPower = (int) (127 * (Math.abs(speed)/100d));
+		} else { //turning left
+			leftPower = (int) (127 * (Math.abs(speed) / 100d));
+			rightPower = (int) (127 * (Math.abs(speed) / 100d) * ((MAX_DIRECTION_SLIDER - direction) / 50d));
+		}
+		Log.i(INFO_TAG, String.format("Sending power levels L%s R%s from speed %s direction %s", leftPower, rightPower, speed, direction));
+		baseController.sendData(dir, (byte) leftPower, dir, (byte) rightPower);
+
+
+//
+//
+//
+//
+//		int leftPower;
+//		int rightPower;
+//		if(direction == 50) { // full forward
+//			leftPower = (int) (255 * (speed / 100d));
+//			rightPower = (int) (255 * (speed / 100d));
+//		} else if(direction > 50) { //turning right
+//			leftPower = (int) (255 * (speed / 100d));
+//			rightPower = (int) (255 * (speed / 100d) * ((MAX_DIRECTION_SLIDER - direction) / 50d));
+//		} else { //turning left
+//			leftPower = (int) (255 * (speed/100d) * (direction / 50d));
+//			rightPower = (int) (255 * (speed/100d));
+//		}
+//		Log.i(INFO_TAG, String.format("Sending power levels L%s R%s", leftPower, rightPower));
+//		baseController.setLeftAndRightPower((byte) (rightPower), (byte) (leftPower));
 	}
 }

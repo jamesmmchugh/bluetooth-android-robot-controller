@@ -10,6 +10,7 @@ byte STOP = 0;
 byte FORWARD_THRESH = 127;
 int motor_left[] = {5, 6};
 int motor_right[] = {9, 10};
+int bumper = 7;
 
 // --------------------------------------------------------------------------- Setup
 void setup() {
@@ -21,35 +22,25 @@ void setup() {
     pinMode(motor_right[i], OUTPUT);
   }
   motor_stop();
+  pinMode(bumper, INPUT);
 }
 
 // --------------------------------------------------------------------------- Loop
 void loop() { 
+  if(digitalRead(bumper) == 1){
+    motor_stop();
+  }
 }
 
 void serialEvent() {
-  if (Serial.available()==2) {
-    byte leftPower = Serial.read();
-    byte rightPower = Serial.read();
+  if (Serial.available()==4) {
+    byte leftDirection = Serial.read();
+    byte leftPower = Serial.read() * 2;
+    byte rightDirection = Serial.read();
+    byte rightPower = Serial.read() * 2;
     
-    turn_left(leftPower);
-    turn_right(rightPower);
-
-//    if(motor == 'f') {
-//      drive_forward();
-//    }
-//    if(motor == 'b') {
-//      drive_backward();
-//    }
-//    if(motor == 'l') {
-//      turn_left();
-//    }
-//    if(motor == 'r') {
-//      turn_right();
-//    }
-//    if(motor == 's') {
-//      motor_stop();
-//    }
+    turn(leftDirection, leftPower, motor_left);
+    turn(rightDirection, rightPower, motor_right);
   }
 }
 
@@ -63,44 +54,17 @@ void motor_stop(){
   analogWrite(motor_right[1], STOP);
 }
 
-void drive_forward(){
-  analogWrite(motor_left[0], HIGH); 
-  analogWrite(motor_left[1], LOW); 
-  
-  analogWrite(motor_right[0], HIGH); 
-  analogWrite(motor_right[1], LOW); 
-}
-
-void drive_backward(){
-  analogWrite(motor_left[0], LOW); 
-  analogWrite(motor_left[1], HIGH); 
-
-  analogWrite(motor_right[0], LOW); 
-  analogWrite(motor_right[1], HIGH); 
-}
-
-void turn_left(byte power){
-  if(power > FORWARD_THRESH){
-    power = 2 * (power - 127);
-    analogWrite(motor_left[BACK], STOP); 
-    analogWrite(motor_left[FORWARD], power); 
+void turn(byte dir, byte power, int motors[]){
+  if(dir <= 0){//forward
+    //power = 2 * (power - 127);
+    analogWrite(motors[BACK], STOP); 
+    analogWrite(motors[FORWARD], power); 
   }
-  else{
-    power = 2 * (127 - power);
-    analogWrite(motor_left[FORWARD], STOP); 
-    analogWrite(motor_left[BACK], power); 
+  else{//backwards
+    //power = 2 * (127 - power);
+    analogWrite(motors[FORWARD], STOP); 
+    analogWrite(motors[BACK], power); 
   }
 }
 
-void turn_right(byte power){
-  if(power > FORWARD_THRESH){
-    power = 2 * (power - 127);
-    analogWrite(motor_right[BACK], STOP); 
-    analogWrite(motor_right[FORWARD], power); 
-  }
-  else{
-    power = 2 * (127 - power);
-    analogWrite(motor_right[FORWARD], STOP); 
-    analogWrite(motor_right[BACK], power); 
-  }
-}
+

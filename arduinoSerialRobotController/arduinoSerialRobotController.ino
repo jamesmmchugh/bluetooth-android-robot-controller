@@ -12,6 +12,21 @@ int motor_left[] = {5, 6};
 int motor_right[] = {9, 10};
 int bumper = 7;
 
+int FRONT_RIGHT = 2;
+int FRONT_LEFT = 4;
+int REAR_RIGHT = 12;
+int REAR_LEFT = 13;
+
+byte FRHIT = 0;
+byte FLHIT = 1;
+byte RRHIT = 2;
+byte RLHIT = 3;
+
+boolean sentFR = false;
+boolean sentFL = false;
+boolean sentRR = false;
+boolean sentRL = false;
+
 // --------------------------------------------------------------------------- Setup
 void setup() {
   Serial.begin(9600);
@@ -20,16 +35,34 @@ void setup() {
   for(i = 0; i < 2; i++){
     pinMode(motor_left[i], OUTPUT);
     pinMode(motor_right[i], OUTPUT);
+
+    pinMode(FRONT_RIGHT, INPUT);
+    pinMode(FRONT_LEFT, INPUT);
+    pinMode(REAR_RIGHT, INPUT);
+    pinMode(REAR_LEFT, INPUT);
   }
   motor_stop();
   pinMode(bumper, INPUT);
 }
 
 // --------------------------------------------------------------------------- Loop
-void loop() { 
-  if(digitalRead(bumper) == 1){
-    motor_stop();
-  }
+void loop() {
+    sentFR = checkSensor(FRONT_RIGHT, FRHIT, sentFR);
+    sentFL = checkSensor(FRONT_LEFT, FLHIT, sentFL);
+    sentRR = checkSensor(REAR_RIGHT, RRHIT, sentRR);
+    sentRL = checkSensor(REAR_LEFT, RLHIT, sentRL);
+}
+
+boolean checkSensor(int sensorPin, boolean messageId, boolean alert){
+    if(digitalRead(sensorPin) == HIGH){
+        if(alert){
+            Serial.write(messageId);
+            return false;
+        }
+    }
+    else{
+        return true;
+    }
 }
 
 void serialEvent() {

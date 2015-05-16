@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-				xmlns:tools="http://schemas.android.com/tools"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:orientation="vertical" >
 
 	<SeekBar
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/sekSpeed"
 			android:layout_alignParentLeft="true"
@@ -13,7 +13,7 @@
 
 	<TextView
 			android:id="@+id/txtSpeed"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:text="@string/txt_SPEED"
@@ -22,7 +22,7 @@
 
 	<SeekBar
 			android:id="@+id/sekDirection"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_centerVertical="true"
 			android:layout_alignParentLeft="true"
@@ -37,14 +37,16 @@
 			android:layout_below="@+id/sekDirection"
 			android:layout_centerHorizontal="true"/>
 
-
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				  android:layout_width="match_parent"
+				  android:layout_height="wrap_content"
+				  android:orientation="horizontal" >
 	<Button
 			android:id="@+id/btnStop"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/btn_STOP"
-			android:layout_above="@+id/btnDisconnect" android:layout_centerHorizontal="true"
-			android:layout_marginBottom="77dp"/>
+			android:layout_alignParentBottom="true" android:layout_alignRight="@+id/txtDirection"/>
 
 
 	<Button
@@ -61,6 +63,14 @@
 			android:text="@string/btn_RECONNECT"
 			android:layout_alignParentBottom="true"
 			android:layout_alignParentRight="true"/>
+		</LinearLayout>
 
+	<ScrollView android:layout_width="match_parent" android:layout_height="match_parent">
+		<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/serial_text" android:layout_above="@+id/btnDisconnect"
+				android:layout_alignParentRight="true" android:layout_alignParentLeft="true"/>
+	</ScrollView>
 
-</RelativeLayout>
+</LinearLayout>

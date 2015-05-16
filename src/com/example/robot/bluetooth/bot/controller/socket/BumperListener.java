@@ -1,7 +1,12 @@
 package com.example.robot.bluetooth.bot.controller.socket;
 
+import android.os.Handler;
+import android.os.Message;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -12,12 +17,11 @@ public class BumperListener implements Runnable{
     public static final int FLHIT = 1;
     public static final int RRHIT = 2;
     public static final int RLHIT = 3;
-
     private final InputStream in;
-    private final Queue<Integer> bumperQueue;
-    public BumperListener(InputStream inStream, Queue<Integer> bumperQueue){
+    private final Handler handler;
+    public BumperListener(InputStream inStream, Handler handler){
         this.in = inStream;
-        this.bumperQueue = bumperQueue;
+        this.handler = handler;
     }
 
     @Override
@@ -25,7 +29,7 @@ public class BumperListener implements Runnable{
         int input;
         try {
             while ((input = in.read()) != -1) {
-                bumperQueue.add(input);
+                handler.dispatchMessage(Message.obtain(handler, input, new Character((char) input).toString()));
             }
         }
         catch (IOException e){

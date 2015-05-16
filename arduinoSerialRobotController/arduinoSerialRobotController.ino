@@ -1,29 +1,26 @@
-// Use this code to test your motor with the Arduino board:
-
-// if you need PWM, just use the PWM outputs on the Arduino
-// and instead of digitalWrite, you should use the analogWrite command
 
 // --------------------------------------------------------------------------- Motors
 int FORWARD = 0;
 int BACK = 1;
 byte STOP = 0;
-byte FORWARD_THRESH = 127;
 int motor_left[] = {5, 6};
 int motor_right[] = {9, 10};
-int bumper = 7;
-
+// --------------------------------------------------------------------------- Sensors
 int FRONT_RIGHT = 2;
 int FRONT_LEFT = 4;
+int FRONT_CENTER = 7;
 int REAR_RIGHT = 12;
 int REAR_LEFT = 13;
 
-byte FRHIT = 0;
-byte FLHIT = 1;
-byte RRHIT = 2;
-byte RLHIT = 3;
+byte FRHIT = 1;
+byte FLHIT = 2;
+byte FCHIT = 4;
+byte RRHIT = 8;
+byte RLHIT = 16;
 
 boolean sentFR = false;
 boolean sentFL = false;
+boolean sentFC = false;
 boolean sentRR = false;
 boolean sentRL = false;
 
@@ -35,28 +32,30 @@ void setup() {
   for(i = 0; i < 2; i++){
     pinMode(motor_left[i], OUTPUT);
     pinMode(motor_right[i], OUTPUT);
-
+  }
     pinMode(FRONT_RIGHT, INPUT);
     pinMode(FRONT_LEFT, INPUT);
+    pinMode(FRONT_CENTER, INPUT);
     pinMode(REAR_RIGHT, INPUT);
     pinMode(REAR_LEFT, INPUT);
-  }
+  
   motor_stop();
-  pinMode(bumper, INPUT);
 }
 
 // --------------------------------------------------------------------------- Loop
 void loop() {
+  byte hit = 0;
     sentFR = checkSensor(FRONT_RIGHT, FRHIT, sentFR);
     sentFL = checkSensor(FRONT_LEFT, FLHIT, sentFL);
     sentRR = checkSensor(REAR_RIGHT, RRHIT, sentRR);
     sentRL = checkSensor(REAR_LEFT, RLHIT, sentRL);
+    sentFC = checkSensor(FRONT_CENTER, FCHIT, sentFC);
 }
 
 boolean checkSensor(int sensorPin, boolean messageId, boolean alert){
     if(digitalRead(sensorPin) == HIGH){
         if(alert){
-            Serial.write(messageId);
+            Serial.println(messageId);
             return false;
         }
     }
@@ -68,9 +67,19 @@ boolean checkSensor(int sensorPin, boolean messageId, boolean alert){
 void serialEvent() {
   if (Serial.available()==4) {
     byte leftDirection = Serial.read();
-    byte leftPower = Serial.read() * 2;
+    byte leftPower = Serial.read();
     byte rightDirection = Serial.read();
-    byte rightPower = Serial.read() * 2;
+    byte rightPower = Serial.read();
+    
+    Serial.print("Got "); 
+    Serial.print(leftDirection);
+    Serial.print(": ");
+    Serial.print(leftPower);
+    Serial.print(", ");
+    Serial.print(rightDirection);
+    Serial.print(": ");
+    Serial.print(rightPower);
+    Serial.println();
     
     turn(leftDirection, leftPower, motor_left);
     turn(rightDirection, rightPower, motor_right);
@@ -88,15 +97,18 @@ void motor_stop(){
 }
 
 void turn(byte dir, byte power, int motors[]){
-  if(dir <= 0){//forward
-    //power = 2 * (power - 127);
+  power = power * 2;
+  if(dir >= 1){//forward
     analogWrite(motors[BACK], STOP); 
     analogWrite(motors[FORWARD], power); 
+    Serial.println("forwards: ");
+    Serial.println(power);
   }
   else{//backwards
-    //power = 2 * (127 - power);
     analogWrite(motors[FORWARD], STOP); 
     analogWrite(motors[BACK], power); 
+    Serial.print("backwards: ");
+    Serial.println(power);
   }
 }
 

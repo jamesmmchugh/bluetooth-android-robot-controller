@@ -2,13 +2,21 @@ package com.example.robot.bluetooth;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.SeekBar;
 
+import android.widget.TextView;
 import com.example.robot.bluetooth.bot.controller.BaseController;
+import com.example.robot.bluetooth.bot.controller.socket.BumperListener;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class RemoteController extends Activity {
 
@@ -22,6 +30,7 @@ public class RemoteController extends Activity {
 	private Button btnReconnect;
 	private SeekBar sekSpeed;
 	private SeekBar sekDirection;
+	private TextView text;
 
 	private BaseController baseController;
 
@@ -37,6 +46,7 @@ public class RemoteController extends Activity {
 		btnDisconnect = (Button) findViewById(R.id.btnDisconnect);
 		btnReconnect = (Button) findViewById(R.id.btnReconnect);
 		sekSpeed = (SeekBar) findViewById(R.id.sekSpeed);
+		text = (TextView) findViewById((R.id.serial_text));
 		sekSpeed.setMax(MAX_SPEED_SLIDER);
 		sekSpeed.setProgress(CENTRE_SPEED_SLIDER);
 		sekDirection = (SeekBar) findViewById(R.id.sekDirection);
@@ -44,6 +54,23 @@ public class RemoteController extends Activity {
 		sekDirection.setProgress(CENTRE_DIRECTION_SLIDER);
 
 		baseController = new BaseController();
+		final InputStream in = baseController.getInputStream();
+		Handler handler = new Handler(Looper.getMainLooper()){
+			@Override
+			public void handleMessage(Message m){
+				runOnUiThread(new Runnable() {
+					public void run() {
+						if(text.length() > 150){
+							text.clearComposingText();
+						}
+						text.append((String)m.obj);
+					}
+				});
+//				text.setText(text.getText() + new Character((char)m.what).toString());
+			}
+		};
+		BumperListener l = new BumperListener(in, handler);
+		new Thread(l).start();
 
 		btnDisconnect.setOnClickListener(new OnClickListener() {
 			@Override

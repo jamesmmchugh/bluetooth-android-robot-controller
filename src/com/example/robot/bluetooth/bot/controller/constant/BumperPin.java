@@ -3,12 +3,13 @@ package com.example.robot.bluetooth.bot.controller.constant;
 import static java.lang.String.format;
 
 public enum BumperPin {
-	FL(8),
 	FC(13),
-	FR(7),
-	BL(2),
-	BC(5),
-	BR(4);
+	BC(12),
+	FR(2),
+	FL(4),
+	BL(7),
+	BR(8);
+
 
 	private final int ordinal;
 

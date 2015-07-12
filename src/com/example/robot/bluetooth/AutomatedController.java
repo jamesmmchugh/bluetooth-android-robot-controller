@@ -1,73 +1,72 @@
 package com.example.robot.bluetooth;
 
+import static com.example.robot.bluetooth.bot.controller.constant.BumperPin.bumperPinOf;
+import static com.example.robot.bluetooth.bot.controller.constant.LoggingConstants.INFO_TAG;
+import static java.lang.String.format;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
+
 import com.example.robot.bluetooth.bot.controller.BaseController;
-import com.example.robot.bluetooth.bot.controller.socket.BumperListener;
+import com.example.robot.bluetooth.bot.controller.InputFactory.ArdMessage;
+import com.example.robot.bluetooth.bot.controller.constant.BumperPin;
+import com.example.robot.bluetooth.bot.controller.socket.SerialListener;
+import com.example.robot.bluetooth.bot.controller.socket.SerialListener.DebugHandler;
+import com.example.robot.bluetooth.bot.controller.socket.SerialListener.MessageHandler;
 
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
+public class AutomatedController extends Activity implements MessageHandler, DebugHandler {
 
-public class AutomatedController extends Activity {
-    private final BaseController base;
-    private final LinkedBlockingQueue<Integer> bumperQueue;
-    private byte leftPower = 0;
-    private byte rightPower = 0;
-    public AutomatedController(){
-        this.base = new BaseController();
-        this.bumperQueue = new LinkedBlockingQueue<Integer>(2);
-    }
-
-    private void updateBase(){
-        base.setLeftAndRightPower(leftPower, rightPower);
-    }
+    private BaseController base;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.automated_controller);
-        leftPower = 50;
-        rightPower = 50;
-        updateBase();
-//        Thread bumperListener = new Thread(new BumperListener(base.getInputStream(), bumperQueue));
-//        bumperListener.start();
-        Integer bump;
-        try {
-            while ((bump = bumperQueue.take()) != null) {
-
-            }
-        }
-        catch(InterruptedException e){
-            System.err.println("Queue done fucked up");
-        }
+		base = new BaseController();
+		try {
+			Thread.sleep(4000L);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		SerialListener serialListener = new SerialListener(base.getInputStream(), this, this);
+        new Thread(serialListener).start();
+        start();
 	}
 
-    private void backup(Integer bump){
-        leftPower = (byte)(0 - leftPower);
-        rightPower = (byte)(0 - rightPower);
-        switch(bump){
-            case BumperListener.FRHIT:
-                rightPower = (byte)(rightPower - 20);
+    @Override
+    public void handle(ArdMessage message) {
+        switch (message.messageType) {
+            case BUMPER_PRESSED: handleBumperPressed(bumperPinOf(message.payload));
                 break;
-            case BumperListener.FLHIT:
-                leftPower = (byte)(leftPower - 20);
-                break;
-            case BumperListener.RRHIT:
-                rightPower = (byte)(rightPower + 20);
-                break;
-            case BumperListener.RLHIT:
-                leftPower = (byte)(leftPower + 20);
-                break;
+            default: Log.i(INFO_TAG, format("Unhandled message of type %s", message.messageType));
         }
-        updateBase();
-        try {
-            Thread.sleep(2000);
-            rightPower = 50;
-            leftPower = 50;
-            updateBase();
+    }
+
+    private void handleBumperPressed(final BumperPin bumperPin) {
+        switch (bumperPin) {
+            case FC: reverse();
+                break;
+			case BL:
+			case BR: forward();
+				break;
+            default: Log.i(INFO_TAG, format("Unhandled bumper pin %s", bumperPin.name()));
         }
-        catch (InterruptedException e){
-            System.err.println("Some asswipe interrupted the wait");
-        }
+    }
+
+    private void start() {
+        forward();
+    }
+
+    private void forward() {
+        base.sendData((byte)1, (byte)127, (byte)1, (byte)127);
+    }
+
+    private void reverse() {
+        base.sendData((byte)0, (byte)127, (byte)0, (byte)127);
+    }
+
+    @Override
+    public void handleDebug(String debugMessage) {
+        Log.i(INFO_TAG, debugMessage);
     }
 }

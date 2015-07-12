@@ -1,5 +1,6 @@
 package com.example.robot.bluetooth.bot.controller;
 
+import static com.example.robot.bluetooth.bot.controller.constant.LoggingConstants.ERROR_TAG;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
@@ -8,24 +9,42 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class BaseController {
+public class BaseController implements Runnable {
 
 	// SPP UUID service
 	private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+	private static final int COMMAND_DELAY = 100;
+
 	// MAC-address of Bluetooth module (you must edit this line)
 	private static String address = "20:14:08:06:06:93";
 
-	private static final String ERROR_TAG = "ARC_ERROR";
-	private static final String INFO_TAG = "ARC_INFO";
 	private BluetoothSocket bluetoothSocket;
 	private OutputStream outStream;
 	private InputStream inputStream;
 
 	private Byte leftPower;
 	private Byte rightPower;
-	public static final byte ZERO = 0;
+	private static final byte ZERO = 0;
 	private static final byte ONE = 1;
+
+	private BlockingQueue<Command> commandList = new LinkedBlockingQueue<>(1);
+
+	private static class Command {
+		final byte leftPower;
+		final byte rightPower;
+		final byte leftDir;
+		final byte rightDir;
+
+		public Command(byte leftPower, byte rightPower, byte leftDir, byte rightDir) {
+			this.leftPower = leftPower;
+			this.rightPower = rightPower;
+			this.leftDir = leftDir;
+			this.rightDir = rightDir;
+		}
+	}
 
 	public BaseController() {
 		BluetoothAdapter defaultBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -33,11 +52,26 @@ public class BaseController {
 			bluetoothSocket = defaultBluetoothAdapter.getRemoteDevice(address).createRfcommSocketToServiceRecord(
 					MY_UUID);
 		} catch (IOException e) {
-			Log.e("ERROR_TAG", "ERROR_STR", e);
+			Log.e(ERROR_TAG, "Error creating socket connection", e);
 		}
 		this.leftPower = 0;
 		this.rightPower = 0;
 		connect();
+		Thread runner = new Thread(this);
+		runner.start();
+	}
+
+	@Override
+	public void run() {
+		while(true) {
+			try {
+				Command command = commandList.take();
+				send(command);
+				Thread.sleep(COMMAND_DELAY);
+			} catch (InterruptedException e) {
+				Log.e(ERROR_TAG, "Base controller runner failed", e);
+			}
+		}
 	}
 
 	public InputStream getInputStream() {
@@ -67,51 +101,19 @@ public class BaseController {
 		}
 	}
 
-	public void setLeftPower(final byte power) {
-		setLeftAndRightPower(power, rightPower);
-	}
-
-	public void setRightPower(final byte power) {
-		setLeftAndRightPower(leftPower, power);
-	}
-
-	public void setLeftAndRightPower(final byte leftPower, final byte rightPower) {
-		this.leftPower = leftPower;
-		this.rightPower = rightPower;
-		try {
-			sendPowerLevels();
-		} catch (IOException e) {
-			Log.e(ERROR_TAG, "Could not set power", e);
-		}
-	}
-
-	public void stop() {
-		setLeftAndRightPower(ZERO, ZERO);
-	}
-
 	public void sendData(final byte leftDir, final byte leftPower, final byte rightDir, final byte rightPower) {
-        send(leftDir, leftPower, rightDir, rightPower);
-	}
-
-	private void sendPowerLevels() throws IOException {
-		byte leftSigned = leftPower < ZERO ? ONE : ZERO;
-		byte rightSigned = rightPower < ZERO ? ONE : ZERO;
-
-        send(leftSigned, leftPower, rightSigned, rightPower);
-
-		String oLeftPower = String.format("%8s", Integer.toBinaryString(leftPower & 0xFF)).replace(' ', '0');;
-		String oRightPower = String.format("%8s", Integer.toBinaryString(rightPower & 0xFF)).replace(' ', '0');;
-		Log.i(INFO_TAG, String.format("Setting power levels L%s R%s (bits) L%s R%s", leftPower, rightPower, oLeftPower,
-				oRightPower));
+		Command command = new Command(leftPower, rightPower, leftDir, rightDir);
+		commandList.poll();
+        commandList.offer(command);
 	}
 
 	/*
 	 * leftDirection/rightDirection : 0 = Forward, 1 = Backwards
 	 * leftPower/rightPower : 0 = Stopped, 127 = Full power
 	 */
-	private void send(final byte leftDirection, final byte leftPower, final byte rightDirection, final byte rightPower) {
+	private void send(final Command command) {
 		try {
-			outStream.write(new byte[] { leftDirection, leftPower, rightDirection, rightPower });
+			outStream.write(new byte[] { command.leftDir, command.leftPower, command.rightDir, command.rightPower });
 			outStream.flush();
 		} catch (IOException e) {
             Log.e(ERROR_TAG, "Could not set data", e);

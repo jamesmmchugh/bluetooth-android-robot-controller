@@ -10,20 +10,24 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.SeekBar;
-
 import android.widget.TextView;
-import com.example.robot.bluetooth.bot.controller.BaseController;
-import com.example.robot.bluetooth.bot.controller.socket.BumperListener;
 
-import java.io.IOException;
 import java.io.InputStream;
 
-public class RemoteController extends Activity {
+import com.example.robot.bluetooth.bot.controller.BaseController;
+import com.example.robot.bluetooth.bot.controller.InputFactory.ArdMessage;
+import com.example.robot.bluetooth.bot.controller.socket.SerialListener;
+import com.example.robot.bluetooth.bot.controller.socket.SerialListener.DebugHandler;
+import com.example.robot.bluetooth.bot.controller.socket.SerialListener.MessageHandler;
+
+public class RemoteController extends Activity implements MessageHandler, DebugHandler {
 
 	public static final int MAX_SPEED_SLIDER = 200;
 	public static final int CENTRE_SPEED_SLIDER = 100;
 	public static final int MAX_DIRECTION_SLIDER = 100;
 	public static final int CENTRE_DIRECTION_SLIDER = 50;
+
+	public static final int DEBUG_MESSAGE = 1;
 
 	private Button btnStop;
 	private Button btnDisconnect;
@@ -31,6 +35,19 @@ public class RemoteController extends Activity {
 	private SeekBar sekSpeed;
 	private SeekBar sekDirection;
 	private TextView text;
+	private Handler handler = new Handler(Looper.getMainLooper()){
+		@Override
+		public void handleMessage(final Message m){
+			runOnUiThread(new Runnable() {
+				public void run() {
+					if(text.length() > 150){
+						text.clearComposingText();
+					}
+					text.append((String)m.obj);
+				}
+			});
+		}
+	};
 
 	private BaseController baseController;
 
@@ -55,22 +72,8 @@ public class RemoteController extends Activity {
 
 		baseController = new BaseController();
 		final InputStream in = baseController.getInputStream();
-		Handler handler = new Handler(Looper.getMainLooper()){
-			@Override
-			public void handleMessage(Message m){
-				runOnUiThread(new Runnable() {
-					public void run() {
-						if(text.length() > 150){
-							text.clearComposingText();
-						}
-						text.append((String)m.obj);
-					}
-				});
-//				text.setText(text.getText() + new Character((char)m.what).toString());
-			}
-		};
-		BumperListener l = new BumperListener(in, handler);
-		new Thread(l).start();
+		SerialListener serialListener = new SerialListener(in, this, this);
+		new Thread(serialListener).start();
 
 		btnDisconnect.setOnClickListener(new OnClickListener() {
 			@Override
@@ -154,25 +157,15 @@ public class RemoteController extends Activity {
 		}
 		Log.i(INFO_TAG, String.format("Sending power levels L%s R%s from speed %s direction %s", leftPower, rightPower, speed, direction));
 		baseController.sendData(dir, (byte) leftPower, dir, (byte) rightPower);
+	}
 
+	@Override
+	public void handleDebug(String debugMessage) {
+		handler.dispatchMessage(Message.obtain(handler, DEBUG_MESSAGE, debugMessage));
+	}
 
-//
-//
-//
-//
-//		int leftPower;
-//		int rightPower;
-//		if(direction == 50) { // full forward
-//			leftPower = (int) (255 * (speed / 100d));
-//			rightPower = (int) (255 * (speed / 100d));
-//		} else if(direction > 50) { //turning right
-//			leftPower = (int) (255 * (speed / 100d));
-//			rightPower = (int) (255 * (speed / 100d) * ((MAX_DIRECTION_SLIDER - direction) / 50d));
-//		} else { //turning left
-//			leftPower = (int) (255 * (speed/100d) * (direction / 50d));
-//			rightPower = (int) (255 * (speed/100d));
-//		}
-//		Log.i(INFO_TAG, String.format("Sending power levels L%s R%s", leftPower, rightPower));
-//		baseController.setLeftAndRightPower((byte) (rightPower), (byte) (leftPower));
+	@Override
+	public void handle(ArdMessage message) {
+
 	}
 }
